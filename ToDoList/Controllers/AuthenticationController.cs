@@ -25,52 +25,37 @@ namespace ToDoList.Controllers
 
         [HttpPost]
         [Route("Authenticate the User")]
-        public async Task<IActionResult> Authenticate(TblUser _userData)
+        public ActionResult<string> Authenticate(UserDto _userData)
         {
-            if (_userData != null)
-            {
                 var resultLoginCheck = _context.TblUsers
                     .Where(e => e.UserName == _userData.UserName && e.Password == _userData.Password)
                     .FirstOrDefault();
                 if (resultLoginCheck == null)
                 {
-                    return BadRequest("Invalid Credentials");
+                    return Unauthorized();
                 }
-                else
-                {
-                   
+                    var securityKey = new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(_configuration["Authentication:SecretForKey"]));
+                var signingCredentials = new SigningCredentials(
+                    securityKey, SecurityAlgorithms.HmacSha256);
 
-                    var claims = new[] {
-                        new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                        new Claim("UserId", _userData.UserId.ToString()),
-                    };
+                var claimsForToken = new List<Claim>();
 
 
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                    var token = new JwtSecurityToken(
-                        _configuration["Jwt:Issuer"],
-                        _configuration["Jwt:Audience"],
-                        claims,
-                        expires: DateTime.UtcNow.AddMinutes(10),
-                        signingCredentials: signIn);
+                var jwtSecurityToken = new JwtSecurityToken(
+                    _configuration["Authentication:Issuer"],
+                    _configuration["Authentication:Audience"],
+                    claimsForToken,
+                    DateTime.UtcNow,
+                    DateTime.UtcNow.AddHours(1),
+                    signingCredentials);
 
+                var tokenToReturn = new JwtSecurityTokenHandler()
+                   .WriteToken(jwtSecurityToken);
 
-
-                    return Ok(_userData);
-                }
-            }
-            else
-            {
-                return BadRequest("No Data Posted");
+                return Ok(tokenToReturn);
             }
         }
-
-
-
     }
-}
-
+          
 
