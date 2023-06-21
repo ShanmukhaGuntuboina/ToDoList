@@ -4,86 +4,73 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ToDoList.Models;
 
 namespace ToDoList.Controllers
 {
 
-    [Route("api/authentication")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
+        ToDoListDbContext _context = new ToDoListDbContext();
 
-        // we won't use this outside of this class, so we can scope it to this namespace
-        public class AuthenticationRequestBody
+        IConfiguration _configuration;
+
+        public AuthenticationController(IConfiguration configuration)
         {
-            public string? UserName { get; set; }
-            public string? Password { get; set; }
+            _configuration = configuration;
         }
 
-        private class UserInfo
+
+
+        [HttpPost]
+        [Route("Authenticate the User")]
+        public async Task<IActionResult> Authenticate(TblUser _userData)
         {
-            public int UserId { get; set; }
-            public string UserName { get; set; } = null!;
-
-            public string Password { get; set; } = null!;
-
-
-            public UserInfo(
-                string userName,
-                string password)
+            if (_userData != null)
             {
+                var resultLoginCheck = _context.TblUsers
+                    .Where(e => e.UserName == _userData.UserName && e.Password == _userData.Password)
+                    .FirstOrDefault();
+                if (resultLoginCheck == null)
+                {
+                    return BadRequest("Invalid Credentials");
+                }
+                else
+                {
+                   
 
-                UserName = userName;
-                Password = password;
+                    var claims = new[] {
+                        new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                        new Claim("UserId", _userData.UserId.ToString()),
+                    };
+
+
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var token = new JwtSecurityToken(
+                        _configuration["Jwt:Issuer"],
+                        _configuration["Jwt:Audience"],
+                        claims,
+                        expires: DateTime.UtcNow.AddMinutes(10),
+                        signingCredentials: signIn);
+
+
+
+                    return Ok(_userData);
+                }
             }
-
+            else
+            {
+                return BadRequest("No Data Posted");
+            }
         }
+
+
+
     }
 }
 
-        //public AuthenticationController(IConfiguration configuration)
-        //{
-        //    _configuration = configuration ??
-        //        throw new ArgumentNullException(nameof(configuration));
-        //}
 
-        //[HttpPost("authenticate")]
-        //public ActionResult<string> Authenticate(
-        //    AuthenticationRequestBody authenticationRequestBody)
-        //{
-        //    var user = ValidateUserCredentials(
-        //        authenticationRequestBody.UserName,
-        //        authenticationRequestBody.Password);
-
-        //    if (user == null)
-        //    {
-        //        return Unauthorized();
-        //    }
-
-//            var securityKey = new SymmetricSecurityKey(
-//                Encoding.ASCII.GetBytes(_configuration["Authentication:SecretForKey"]));
-//            var signingCredentials = new SigningCredentials(
-//                securityKey, SecurityAlgorithms.HmacSha256);
-
-//            var claimsForToken = new List<Claim>();
-
-
-//            var jwtSecurityToken = new JwtSecurityToken(
-//                _configuration["Authentication:Issuer"],
-//                _configuration["Authentication:Audience"],
-//                claimsForToken,
-//                DateTime.UtcNow,
-//                DateTime.UtcNow.AddHours(1),
-//                signingCredentials);
-
-//            var tokenToReturn = new JwtSecurityTokenHandler()
-//               .WriteToken(jwtSecurityToken);
-
-//            return Ok(tokenToReturn);
-//        }
-
-//    }
-
-//}
-        
