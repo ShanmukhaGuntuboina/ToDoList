@@ -25,7 +25,7 @@ namespace ToDoList.Controllers
 
         [HttpPost]
         [Route("Authenticate the User")]
-        public ActionResult<string> Authenticate(UserDto _userData)
+        public ActionResult<string> Authenticate(UserAuthDto _userData)
         {
                 var resultLoginCheck = _context.TblUsers
                     .Where(e => e.UserName == _userData.UserName && e.Password == _userData.Password)
