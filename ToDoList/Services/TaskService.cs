@@ -14,7 +14,7 @@ namespace ToDoList.Services
             _context = context;
         }
 
-        
+
         public async Task<IActionResult> GetAllTasks()
         {
             var tasks = await _context.TblTasks
@@ -35,13 +35,13 @@ namespace ToDoList.Services
 
         public async Task<IActionResult> GetTasksByUserId(int id)
         {
-            var tasks =  _context.TblTasks
+            var tasks = _context.TblTasks
             .Where(a => a.AssignedToUser == id)
             .ToList();
 
             var taskDTOs = tasks.Select(task => new TaskDto
             {
-            
+
                 TaskId = task.TaskId,
                 TaskType = task.TaskType,
                 TaskName = task.TaskName,
@@ -55,23 +55,17 @@ namespace ToDoList.Services
             return new OkObjectResult(taskDTOs);
         }
 
+
         public async Task<IActionResult> RegisterTask(TblTask tblTask)
         {
-            if (TblTaskExists(tblTask.TaskName))
-            {
-                return new BadRequestObjectResult("Task already Exists");
-            }
-            else
-            {
+         
+            
                 _context.TblTasks.Add(tblTask);
                 await _context.SaveChangesAsync();
 
                 return new CreatedAtActionResult("Register", "TblTask", new { id = tblTask.TaskId }, tblTask);
             }
-            bool TblTaskExists(string taskname)
-            {
-                return _context.TblTasks.Any(e => e.TaskName == taskname);
-            }
         }
     }
-}
+    
+

@@ -14,5 +14,6 @@
 
         public DateTime TaskDueDate { get; set; }
 
+        public int StatusId { get; set; }
     }
 }

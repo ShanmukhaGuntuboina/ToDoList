@@ -19,7 +19,7 @@ namespace ToDoList.Controllers
             _userService = userService;
         }
 
-        [HttpGet("Get User by ID")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(int id)
         {
             return await _userService.GetUser(id);
@@ -32,7 +32,7 @@ namespace ToDoList.Controllers
             return await _userService.LoginUser(username, password);
         }
 
-        [HttpPost("Register User")]
+        [HttpPost]
         public async Task<IActionResult> RegisterUser(TblUser tblUser)
         {
             return await _userService.RegisterUser(tblUser);

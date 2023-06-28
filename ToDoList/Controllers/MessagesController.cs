@@ -18,13 +18,14 @@ namespace ToDoList.Controllers
             _messageService = messageService;
         }
 
-        [HttpGet("Get Messages")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<TblMessage>>> GetMessages()
         {
             return await _messageService.GetMessages();
         }
 
-        [HttpPost("Create a Message")]
+        [HttpPost]
+        [Route("CreateMessage")]
         public async Task<ActionResult<TblMessage>> PostMessage(TblMessage tblMessage)
         {
             return await _messageService.PostMessage(tblMessage);

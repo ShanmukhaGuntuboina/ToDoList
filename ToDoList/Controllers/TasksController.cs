@@ -18,19 +18,20 @@ namespace ToDoList.Controllers
             _taskService = taskService;
         }
 
-        [HttpGet("Get all tasks")]
+        [HttpGet]
         public async Task<IActionResult> GetAllTasks()
         {
             return await _taskService.GetAllTasks();
         }
 
-        [HttpGet("Get tasks by userId")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetTasksByUserId(int id)
         {
             return await _taskService.GetTasksByUserId(id);
         }
 
-        [HttpPost("Create a task")]
+        [HttpPost]
+        [Route("RegisterTask")]
         public async Task<IActionResult> RegisterTask(TblTask tblTask)
         {
             return await _taskService.RegisterTask(tblTask);
