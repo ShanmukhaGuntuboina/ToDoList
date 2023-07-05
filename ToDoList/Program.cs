@@ -8,13 +8,16 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
+    .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("logs/loginfo.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
+
 
 // Add services to the container.
 builder.Services.AddControllers();

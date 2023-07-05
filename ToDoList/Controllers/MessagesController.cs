@@ -31,5 +31,21 @@ namespace ToDoList.Controllers
             return await _messageService.PostMessage(tblMessage);
 
         }
+
+        [HttpGet]
+        [Route("GetTopMessages")]
+
+        public async Task<ActionResult<IEnumerable<TblMessage>>> GetTopMessages()
+        {
+            return await _messageService.GetTopMessages();
+        }
+
+        [HttpGet]
+        [Route("MessagesByUserId")]
+
+        public async Task<ActionResult<List<TblMessage>>> GetMessagesByUserId(int SenderId)
+        {
+            return await _messageService.GetMessagesByUserId(SenderId);
+        }
     }
 }

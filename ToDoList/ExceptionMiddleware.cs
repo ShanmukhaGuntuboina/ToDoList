@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Serilog;
+using System.Net;
 
 namespace ToDoList
 {
@@ -20,6 +21,11 @@ namespace ToDoList
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex);
+                Log.Fatal(ex, "Application encountered a fatal error");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
             }
         }
 

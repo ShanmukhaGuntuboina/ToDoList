@@ -7,6 +7,8 @@ namespace ToDoList.Services
     {
         public Task<ActionResult<IEnumerable<TblMessage>>> GetMessages();
         public Task<ActionResult<TblMessage>> PostMessage(TblMessage tblMessage);
+        public Task<ActionResult<IEnumerable<TblMessage>>> GetTopMessages();
+        public Task<ActionResult<List<TblMessage>>> GetMessagesByUserId(int SenderId);
 
     }
     

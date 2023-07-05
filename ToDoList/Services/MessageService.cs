@@ -28,6 +28,43 @@ namespace ToDoList.Services
             return new OkObjectResult(messages);
         }
 
+        public async Task<ActionResult<IEnumerable<TblMessage>>> GetTopMessages()
+        {
+            var TopMessages = await _context.TblMessages
+                .Select(c => new MessageDto
+                {
+                    MessageId = c.MessageId,
+                    SenderId = c.SenderId,
+                    ReceiverId = c.ReceiverId,
+                    Subject = c.Subject,
+                    Body = c.Body,
+                    Timestamp = c.Timestamp
+                })
+                .Take(5).ToListAsync();
+            return new OkObjectResult(TopMessages);
+
+        }
+
+
+        public async Task<ActionResult<List<TblMessage>>> GetMessagesByUserId(int SenderId)
+        {
+            var message = await _context.TblMessages
+                .Where(m => m.SenderId == SenderId)
+
+            .Select(c => new MessageDto
+             {
+                 Subject = c.Subject,
+                 Body = c.Body,
+                 Timestamp = c.Timestamp
+             })
+                .ToListAsync();
+            return new OkObjectResult(message);
+
+
+        }
+
+
+
         public async Task<ActionResult<TblMessage>> PostMessage(TblMessage tblMessage)
         {
             if (!TblUserExists(tblMessage.ReceiverId))
